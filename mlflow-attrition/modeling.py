@@ -17,6 +17,8 @@ warnings.filterwarnings("ignore")
 
 def configure_mlflow():
     load_dotenv()
+    # Prevent accidental resume of an old run from shell env.
+    os.environ.pop("MLFLOW_RUN_ID", None)
 
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     if tracking_uri:
@@ -114,7 +116,11 @@ def main():
         }
         mlflow.log_metrics(metrics)
 
-        mlflow.sklearn.log_model(model, artifact_path="model")
+        model_kwargs = {"name": "model"}
+        if registered_model_name:
+            model_kwargs["registered_model_name"] = registered_model_name
+
+        mlflow.sklearn.log_model(model, **model_kwargs)
         log_preprocessing_artifacts(
             scaler=scaler,
             label_encoders=label_encoders,
@@ -132,14 +138,7 @@ def main():
         print(f"Model URI: runs:/{run_id}/model")
 
         if registered_model_name:
-            registered = mlflow.register_model(
-                model_uri=f"runs:/{run_id}/model",
-                name=registered_model_name,
-            )
-            print(
-                f"Registered model: {registered_model_name} "
-                f"(version {registered.version})"
-            )
+            print(f"Registration requested for model name: {registered_model_name}")
 
 
 if __name__ == "__main__":

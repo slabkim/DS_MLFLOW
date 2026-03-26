@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 
 import joblib
 import mlflow
@@ -62,6 +63,28 @@ def _download_run_artifact(run_id, relative_path):
     return mlflow.artifacts.download_artifacts(artifact_uri=artifact_uri)
 
 
+def _load_model_from_run(run_id, preferred_model_uri=""):
+    if preferred_model_uri:
+        try:
+            return mlflow.sklearn.load_model(preferred_model_uri)
+        except Exception:
+            pass
+
+    run_artifacts_dir = mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{run_id}/")
+    run_artifacts_path = Path(run_artifacts_dir)
+
+    for mlmodel_file in run_artifacts_path.rglob("MLmodel"):
+        model_dir = str(mlmodel_file.parent)
+        try:
+            return mlflow.sklearn.load_model(model_dir)
+        except Exception:
+            continue
+
+    raise RuntimeError(
+        f"Tidak menemukan direktori model MLflow yang valid di artifacts run {run_id}."
+    )
+
+
 def _load_from_mlflow():
     _configure_tracking()
 
@@ -76,7 +99,7 @@ def _load_from_mlflow():
     if not run_id:
         raise RuntimeError("Tidak bisa resolve run_id dari model URI MLflow.")
 
-    model = mlflow.sklearn.load_model(model_uri)
+    model = _load_model_from_run(run_id, preferred_model_uri=model_uri)
     scaler = joblib.load(_download_run_artifact(run_id, "artifacts/scaler.pkl"))
     label_encoders = joblib.load(_download_run_artifact(run_id, "artifacts/label_encoders.pkl"))
     feature_names = joblib.load(_download_run_artifact(run_id, "artifacts/feature_names.pkl"))
