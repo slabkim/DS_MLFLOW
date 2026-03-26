@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}Prediksi Attrition{% endblock %}
+{% block content %}
+<style>
+  .paste-panel {
+    background: linear-gradient(135deg, #f8f9fa, #eef3ff);
+    border: 1px solid #dbe4ff;
+  }
+
+  .field-card {
+    border: 1px solid #e9ecef;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    background: #fff;
+  }
+
+  .status-text {
+    min-height: 1.5rem;
+  }
+</style>
+
+<div class="d-flex flex-column gap-4">
+  <div>
+    <h2 class="mb-2">Prediksi Attrition Karyawan</h2>
+    <p class="text-muted mb-0">
+      Paste satu baris data sesuai urutan kolom dataset asli. Field yang tidak dipakai model akan diabaikan otomatis.
+    </p>
+  </div>
+
+  {% if result %}
+  <div
+    class="alert {% if result == 'Attrition' %}alert-danger{% else %}alert-success{% endif %} mb-0"
+    role="alert"
+  >
+    <h4 class="alert-heading mb-1">Hasil Prediksi: {{ result }}</h4>
+    <p class="mb-0">Probability of Attrition: {{ (proba * 100) | round(2) }}%</p>
+  </div>
+  {% endif %}
+
+  {% if paste_error %}
+  <div class="alert alert-warning mb-0" role="alert">{{ paste_error }}</div>
+  {% endif %}
+
+  <form method="POST" action="/predict" class="d-flex flex-column gap-4">
+    <div class="card shadow-sm paste-panel">
+      <div class="card-body">
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+          <div>
+            <h5 class="mb-1">Paste Satu Baris Data</h5>
+            <p class="text-muted mb-0">
+              Mendukung dataset asli, versi tanpa <code>EmployeeId</code>, tanpa <code>Attrition</code>, atau langsung field aktif model.
+            </p>
+          </div>
+          <div class="text-muted small">
+            Kolom diabaikan: {{ ignored_columns | join(', ') }}
+          </div>
+        </div>
+
+        <label for="pasted_row" class="form-label">Data mentah</label>
+        <textarea
+          id="pasted_row"
+          name="pasted_row"
+          class="form-control"
+          rows="8"
+          placeholder="Tempel data di sini, lalu field akan terisi otomatis"
+        >{{ pasted_row }}</textarea>
+
+        <div class="d-flex flex-column flex-md-row align-items-md-center gap-3 mt-3">
+          <button type="button" id="fill-from-paste" class="btn btn-outline-primary">
+            Isi Form Otomatis
+          </button>
+          <div id="paste-status" class="status-text small text-muted">
+            Urutan kolom referensi: {{ dataset_columns | join(' | ') }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-card shadow-sm">
+      <div class="row">
+        {% for field in form_fields %}
+        <div class="col-md-4 mb-3">
+          <label for="{{ field.name }}" class="form-label">{{ field.label }}</label>
+          {% if field.type == 'select' %}
+          <select
+            class="form-select"
+            id="{{ field.name }}"
+            name="{{ field.name }}"
+            data-feature-field="true"
+            required
+          >
+            <option value="">Pilih {{ field.label }}</option>
+            {% for option in field.options %}
+            <option value="{{ option }}" {% if form_values[field.name] == option %}selected{% endif %}>
+              {{ option }}
+            </option>
+            {% endfor %}
+          </select>
+          {% else %}
+          <input
+            type="number"
+            step="any"
+            inputmode="numeric"
+            class="form-control"
+            id="{{ field.name }}"
+            name="{{ field.name }}"
+            value="{{ form_values[field.name] }}"
+            data-feature-field="true"
+            required
+          />
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Prediksi</button>
+  </form>
+</div>
+
+<script>
+  const datasetColumns = {{ dataset_columns | tojson }};
+  const activeColumns = {{ active_columns | tojson }};
+  const categoricalOptions = {{ categorical_options | tojson }};
+  const numericFields = new Set({{ numeric_fields | tojson }});
+  const pastedRowField = document.getElementById("pasted_row");
+  const pasteStatus = document.getElementById("paste-status");
+  const fillButton = document.getElementById("fill-from-paste");
+  const featureFields = Object.fromEntries(
+    Array.from(document.querySelectorAll("[data-feature-field='true']")).map((field) => [field.name, field])
+  );
+
+  function tokenizeRow(rawText) {
+    const normalizedText = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+    if (!normalizedText) {
+      return [];
+    }
+
+    let separator = ",";
+    if (normalizedText.includes("\t")) {
+      separator = "\t";
+    } else if (normalizedText.includes("\n")) {
+      separator = "\n";
+    } else if (normalizedText.includes(";")) {
+      separator = ";";
+    }
+
+    return normalizedText.split(separator).map((value) => value.trim());
+  }
+
+  function isNumericValue(value) {
+    return value !== "" && !Number.isNaN(Number(value));
+  }
+
+  function scoreVariant(columns, values) {
+    if (columns.length !== values.length) {
+      return null;
+    }
+    const mappedValues = Object.fromEntries(columns.map((column, index) => [column, values[index]]));
+    let score = 0;
+
+    activeColumns.forEach((column) => {
+      const value = mappedValues[column] ?? "";
+      if (value === "") {
+        return;
+      }
+
+      if (numericFields.has(column)) {
+        score += isNumericValue(value) ? 2 : -2;
+      } else {
+        score += categoricalOptions[column].includes(value) ? 3 : -3;
+      }
+    });
+
+    return score;
+  }
+
+  function setStatus(message, tone) {
+    pasteStatus.className = "status-text small";
+    if (tone === "success") {
+      pasteStatus.classList.add("text-success");
+    } else if (tone === "error") {
+      pasteStatus.classList.add("text-danger");
+    } else {
+      pasteStatus.classList.add("text-muted");
+    }
+    pasteStatus.textContent = message;
+  }
+
+  function fillFormFromRawText(rawText) {
+    const values = tokenizeRow(rawText);
+    if (!values.length) {
+      setStatus("Belum ada data yang dipaste.", "default");
+      return;
+    }
+
+    const columnVariants = [
+      { label: "dataset asli", columns: datasetColumns },
+      { label: "tanpa EmployeeId", columns: datasetColumns.slice(1) },
+      { label: "tanpa Attrition", columns: datasetColumns.filter((column) => column !== "Attrition") },
+      {
+        label: "tanpa EmployeeId dan Attrition",
+        columns: datasetColumns.filter((column) => column !== "EmployeeId" && column !== "Attrition")
+      },
+      { label: "field aktif model", columns: activeColumns }
+    ];
+
+    const matchedVariant = columnVariants
+      .map((variant) => ({ ...variant, score: scoreVariant(variant.columns, values) }))
+      .filter((variant) => variant.score !== null)
+      .sort((left, right) => right.score - left.score)[0];
+
+    if (!matchedVariant) {
+      const supportedLengths = columnVariants.map((variant) => variant.columns.length).join(", ");
+      setStatus(`Jumlah nilai tidak cocok. Dapat ${values.length}, format yang didukung: ${supportedLengths} nilai.`, "error");
+      return;
+    }
+
+    const mappedValues = Object.fromEntries(
+      matchedVariant.columns.map((column, index) => [column, values[index]])
+    );
+
+    activeColumns.forEach((column) => {
+      if (featureFields[column] && Object.prototype.hasOwnProperty.call(mappedValues, column)) {
+        featureFields[column].value = mappedValues[column];
+      }
+    });
+
+    setStatus(
+      `Autofill berhasil dari format ${matchedVariant.label}. ${activeColumns.length} field aktif model sudah diisi.`,
+      "success"
+    );
+  }
+
+  fillButton.addEventListener("click", () => {
+    fillFormFromRawText(pastedRowField.value);
+  });
+
+  pastedRowField.addEventListener("paste", () => {
+    window.setTimeout(() => fillFormFromRawText(pastedRowField.value), 0);
+  });
+</script>
+{% endblock %}

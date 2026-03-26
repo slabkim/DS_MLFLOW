@@ -1,0 +1,216 @@
+--- PARAGRAPHS ---
+Data Science Project
+Computer Science - Faculty of Mathematics and Natural Sciences - Universitas Lampung
+Rahman Taufik, S.Pd., M.Kom.
+199306272022031007
+Employee Attrition (Project I)
+Business Understanding
+Tahapan ini memahami masalah, menentukan tujuan bisnis, menilai situasi ketersediaan sumber daya, dan menghasilkan rencana proyek, misal business understanding pada project ini berkaitan dengan employee attrition, lengkapnya bisa dilihat dibawah ini:
+Perusahaan Jaya Jaya Maju menghadapi tingginya tingkat attrition karyawan, melebihi 10%, yang secara signifikan mengganggu stabilitas operasional dan efisiensi. Fenomena ini mengindikasikan adanya ketidakpuasan atau faktor pendorong lain yang menyebabkan karyawan memutuskan untuk meninggalkan perusahaan. Tingginya attrition rate ini berpotensi menyebabkan kerugian finansial akibat biaya rekrutmen dan pelatihan karyawan baru yang tinggi, penurunan produktivitas tim, serta hilangnya keahlian dan pengetahuan institusional. Oleh karena itu, perusahaan perlu secara mendesak mengidentifikasi akar penyebab dari tingginya attrition ini agar dapat merumuskan strategi retensi yang efektif. 
+Data Understanding
+Tahapan ini dilakukan untuk mengidentifikasi, menganalisis kumpulan data, memverifikasi kualitas data. Hal-hal yang bisa dilakukan antara lain seperti dibawah ini:
+Overview Dataset (sumber dataset bisa diakses di [1], secara overview dataset bisa dicek berkaitan dengan jenisnya, jumlah datanya, kelengkapan, dan lain-lain)
+Cek format dataset (Dataset berupa tabular)
+Cek jumlah dataset (Dataset terdiri dari 35 kolom dan 1470 baris, detailnya dapat di cek menggunakan dataframe info)
+Cek dan pahami tipe data (baik dari sisi bahasa pemrograman maupun statistika, misal integer dengan jenis data rasio, dan lain-lain)
+Cek kelengkapan dataset (Kolom attrition memiliki data null / missing sekitar 28.03%)
+Perform Exploration Data Analyst (EDA) dengan teknik statistika misal cek outlier, imbalance, tren, dan lain-lain. Untuk project ini, EDA yang bisa dilakukan antara lain cek korelasi antar attrition ke multi variabel (multivariate), atau ke satu variabel (univariate), dan lain-lain
+Kaitkan hasil pemahaman data dengan pemahaman bisnis (misal, berdasarkan EDA dan analisis lainnya, didapati bahwa data attrition perlu dilengkapi sebelum diidentifikasi faktor yang mempengaruhi tingginya attrition)
+Data Preparation
+Tahapan ini dilakukan untuk membersihkan data, menentukan set data yang akan digunakan, atau mendapatkan atribut baru yang akan membantu pemrosesan, memformat data, dan lain-lain. Teknik preprocessing bisa ditentukan berdasarkan hasil EDA (data understanding) DAN sesuai kebutuhan Modeling, contoh: 
+Mengatasi data yang missing atau null values, misal dengan menghapus sebagian data attrition jika diketahui missing data jumlahnya sangat sedikit, atau memisahkan dataset yang missing kemudian diimputasi atau diprediksi menggunakan teknik tertentu 
+Melakukan balancing data dengan teknik tertentu jika diketahui data jauh tidak seimbang, 
+Transformasi format nilai data, misal dari teks ke integer, dan lain-lain
+Scaling data atau merubah skala data, misal skala 0-100 menjadi 0-1, untuk kebutuhan keseragaman data
+Pemilihan fitur / kolom yang berpengaruh terhadap data yang akan diprediksi (feature selection)
+Splitting data untuk kebutuhan modeling,
+Dan lain-lain
+Modeling
+Tahapan ini ditujukan untuk membuat dan menilai berbagai model menggunakan beberapa metode yang berbeda berdasarkan masalah yang dihadapi. Dalam kasus ini, pemodelan diusulkan untuk memprediksi missing data pada attrition dan identifikasi faktor yang berpengaruh pada attrition. 
+Evaluation
+Tahapan ini mengevaluasi hasil, melakukan peninjauan, memutuskan model mana yang paling sesuai dengan kebutuhan bisnis atau masalah menggunakan teknik-teknik tertentu. Penting di dalam data science project, model hasil evaluasi (model bagus yang dipilih) perlu dieksport untuk kebutuhan deployment termasuk inferensi atau dijadikan pretrained model
+Deployment
+Tahapan ini berfokus pada penerapan model yang telah terpilih ke dalam lingkungan operasional sehingga dapat digunakan oleh end user maupun sistem bisnis. Pada tahap ini, model yang sudah dianggap sesuai dengan kebutuhan bisnis akan diintegrasikan ke dalam aplikasi, dashboard, atau layanan berbasis API. Berhubung projek ini berkaitan dengan analisis faktor yang mempengaruhi attrition, jadi tahapan deploy yang dilakukan adalah:
+Ekspor Model – menyimpan model terlatih dalam format yang sesuai dengan library yang digunakan:
+scikit-learn (pickle/joblib): joblib.dump(model, "random_forest_model.pkl")
+keras/tensorflow: model.save("keras_model")
+pytorch: torch.save(model.state_dict(), "pytorch_model.pth")
+Ekspor hasil prediksi/inference– menyimpan hasil prediksi (klasifikasi, regresi, klastering, atau forecasting) dalam format tertentu
+CSV/XLS: untuk data tabular yang ringan, khususnya untuk kasus ini yang berhubungan dengan analisis dengan dashboard
+Parquet: untuk data tabular yang berukuran big data
+JSON: untuk kebutuhan API sistem aplikasi
+WAV: umumnya untuk dataset yang berkaitan dengan suara
+MP4/AVI: untuk dataset yang berkaitan dengan video
+PNG/JPG/TIFF: untuk dataset yang berkaitan dengan gambar
+NumPy Array (.npy / .npz) → untuk menyimpan hasil prediksi matriks piksel
+dll.
+Database Management
+SQL Database (MySQL, PostgreSQL, SQL Server, dll.) → menyimpan hasil prediksi agar bisa langsung dipakai aplikasi bisnis. 
+NoSQL (MongoDB, Cassandra, Redis, dll.) → kalau hasilnya dipakai real-time atau butuh skala besar.
+Model Registry / Management
+MLFlow: model registry untuk versioning & status (staging/production)
+Dagshub: model registry berbasis Git/DVC untuk kolaborasi & versioning
+Docker: containerization untuk menyimpan & menjalankan model secara konsisten (dikonfigurasi dengan Dockerfile atau .yml)
+dll.
+Integrasi
+Dashboard: untuk kasus/model bisnis yang berkaitan dengan eksplorasi dan analisis
+Web aplikasi: untuk kasus/model bisnis yang berkaitan dengan prediksi/inferensi
+Dll.
+Deployment App Integrasi Dashboard
+Ekspor data hasil prediksi/inferensi ke google sheet  dan beri nama yang spesifik, contoh Data Attrition HR Jaya Maju Dicoding
+Buka google looker, pilih “Create”, lalu “Report”, atau pilih “Blank report”
+Masuk panel “Add data to report”, pilih “Google Sheet”, otorisasi akun google sheet, pilih spreadsheet dari data google sheet prediksi attrition yang sebelumnya diekspor, lalu “add”
+Pilih “Responsive layout” untuk layout yang otomatis terstruktur, pada bagian ini anda bisa menambahkan judul, menu kontrol / filter, diagram, dll. Bangun dashboard atau laporan analisis kalian untuk memberikan insight faktor-faktor apa yang mempengaruhi attrition (konteks project ini)
+Selesai membuat dashboard, publish report dengan memberi nama judul report di pojok kiri atas, dan pilih tombol “v” di sebelah “share” kanan atas, pilih “embed report”, checklist “enable embedding”, tentukan “width” dan “height”, lalu “copy to clipboard”
+Buat folder project (misal “dsp-attrition-app”), buka software code editor (misal visual studio code), lalu buka project, buat folder dan file tanpa script, dimana minimal struktur isinya seperti dibawah ini
+├── .dockerignore
+├── .gitignore
+├── Dockerfile
+├── Procfile
+├── README.md
+├── app.py
+├── requirements.txt
+├── static/
+│   ├── style.css
+├── templates/
+│   ├── base.html
+│   ├── home.html
+│   ├── dashboard_view.html
+Pastikan python 3, virtualenv python, docker sudah terinstall dan docker hub sudah memiliki akunnya
+Buat dan jalankan virtualenv untuk project ini di terminal (lihat referensi ini atau tanya AI), kemudian install library-library seperti flask, gunicorn, setuptools, lalusimpan dependencies libraries nya di dalam requirements.txt (pip freeze > requirements.txt), jika librariesnya tidak tersintall, copy paste https://github.com/rahmantaufik27/dsp-attrition-app/blob/main/requirements.txt ke file requirements.txt kalian, lalu pip install -r requirements.txt
+Pahami pembuatan project app menggunakan flask, bisa lihat referensi dibawah ini atau belajar bareng AI
+Masukan code dibawah ini pada app.py
+from flask import Flask, render_template
+Import os
+app = Flask(__name__)
+@app.route('/')
+def home():
+    return render_template('home.html')
+@app.route('/dashboard')
+def get_dashboard():
+    return render_template('dashboard_view.html')
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 8000))
+    app.run(host="0.0.0.0", port=port)
+Masukan code dibawah ini berturut-turut pada base.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Solid Web App{% endblock %}</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/dashboard">Dashboard Analitik</a></li>
+        </ul>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
+Untuk style atau tampilan web app nya silahkan coding dan sesuaikan lagi selera masing-masing (atur di halaman html dan css, atau perintah diskusi dengan AI)
+Salin potongan kode iframe looker report (cek nomer 5) ke dashboard_view.html lalu sesuaikan lagi kode nya seperti dibawah ini
+{% extends "base.html" %}
+{% block title %}Predict Attrition{% endblock %}
+{% block content %}
+<h1>Laporan Analitik Produk</h1>
+<div class="dashboard-container">
+    <div class="iframe-wrapper">
+        PASTE POTONGAN KODE IFRAME LOOKER DISINI
+    </div>
+</div>
+{% endblock %}
+Jalan web aplikasi nya dengan menggunakan perintah “python app.py” di terminal tempat project anda
+Jika berhasil lanjut ke tahap pembuatan images docker, jika gagal cek errornya dimana, bisa jadi dependencies libraries nya atau codenya, jika bingung silahkan diskusi dengan AI
+Masukan code dibawah ini pada Dockerfile
+# Base image
+FROM python:3.12-slim
+# Set working directory
+WORKDIR /app
+# Copy requirements
+COPY requirements.txt .
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+# Copy all files ke container
+COPY . .
+# Expose port untuk Railway
+EXPOSE 8000
+# Run Flask
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]
+Tulis file atau folder yang ingin di ignore pada docker di .dockerignore, misal __pycache__/, dll file-file lainnya yang tidak penting
+Buat images di docker dengan tahapan seperti dibawah ini
+Deactivate environment dengan cara deactivate
+Build image dengan platform tertentu (untuk kebutuhan deployment railway) dan hubungkan ke akun docker hub yang dibuat sebelumnya
+docker buildx build --platform linux/amd64 -t username_dockerhub/nama_webapp:nama_tag . #contoh ertaufik27/attrition-app:latest .
+Jalankan image di lokal, cek apakah berhasil dapat dijalankan web app nya atau tidak, akses dengan url path yang diberikan di terminal hasil	  
+docker run -p 8000:8000 username_dockerhub/nama_webapp:nama_tag 
+Push images ke docker hub pada akun docker hub yang dibuat sebelumnya
+docker push username_dockerhub/nama_webapp:nama_tag
+Cek apakah image terkait project ini sudah ada atau berhasil di push di docker hub anda, jika ada yang error atau bingung tanya AI
+Deploy image web app anda ke railway dengan cara login akun, buat project, hubungkan ke image docker hub nya (copy paste nama url project image docker-nya), deploy, generate url, copas url nya, cek di browser berhasil atau tidak (jika tidak tanya AI atau lihat referensi video dibawah)
+Deployment App Integrasi Form untuk Prediksi Attrition
+Buka folder project dashboard sebelumnya
+Tambah file baru model_util.py berisi fungsi untuk mengambil model ML dari MLflow (selesaikan serving monitoring mlflow untuk dapat mengambil model ini), setting model uri nya (dilihat dari menu model di dagshub models:/nama_model/versionnya), lalu simpan  modelnya di lokal. 
+Buat juga fungsi lain untuk mengambil atau memuat modelnya. Sebagai contoh lihat kodingan dibawah ini
+Tambahkan fungsi untuk form prediksi di app.py, fungsi ini memuat model lokal, mengatur nama fitur (diambil dari dataset), nilai acak untuk setiap fitur, dan form prediksinya. 
+Selanjutnya, buat halaman baru html untuk menampilkan form berdasarkan fungsi form prediksi di app.py. 
+Atur fungsi form prediksi di app.py, sehingga data dari form inputan di halaman html dapat diambil oleh fungsi tersebut. Selanjutnya, datanya dikonversi ke data frame, kemudian diprediksi menggunakan model, dan hasilnya ditampilkan di halaman baru html tersebut
+Contoh kodingan fungsi form prediksi (model, nama fitur dan nilai acak diambil dari fungsi lain yang sudah dibuat)
+Jangan lupa routing di fungsi predict_view app.py dan base.html (misal @app.route(‘/predict’),  <a href="/predict">)
+Silahkan jalankan secara lokal, jika berhasil push kembali project app ini di docker, lalu lihat hasilnya lagi di lokal dan di railway (deploy kembali), jika gagal silahkan eksplore sendiri tanya-tanya AI ;)
+Tracking / Monitoring
+Serving and Monitoring dengan MLFlow
+Siapkan Project MLFlow Attrition di local dengan contoh struktur folder project seperti dibawah ini
+├── .gitignore
+├── README.md
+├── modeling.py
+├── requirements.txt
+├── data/
+│   ├── data_clean.csv (contoh nama data clean yang)
+Buat dan jalankan virtualenv untuk project ini di terminal (lihat referensi ini atau tanya AI), kemudian install library-library seperti sklearn (atau library ml yang lainnya), mlflow, dotenv, lalusimpan dependencies libraries nya di dalam requirements.txt (pip freeze > requirements.txt) 
+Buat dan login akun dagshub (bisa login menggunakan akun github) lalu “Create New Repository” untuk project ini, kemudian copy url repository tersebut (misal “https://dagshub.com/<username>/<nama_repo>.mlflow”)
+Buat script Python berbasis fungsi untuk melatih model dan logging menggunakan MLflow, baik lokal maupun remote ke DagsHub, termasuk konfigurasikan dataset, parameter dan environment variable untuk DagsHub. 
+Coba jalankan MLFlow project ini di lokal dengan menuliskan kode python3 modeling.py  seperti dibawah ini, jika berhasil lanjut python -m mlflow ui di terminal, lalu buka url MLFlow project nya (misal http://127.0.0.1:5000)
+Jika berhasil, di url MLFlow project nya muncul experiment dan run name yang sudah dibuat, cek kesesuaian experiment name (baris 27 di kodingan modeling.py) dan run name (baris 46 di di kodingan modeling.py)
+Monitoring hasil experimentnya dengan memilih nama experimentnya, nama run namenya, lalu muncul halaman monitoring, disini anda bisa melihat kinerja model / metrics, parameter yang digunakan, dan lain-lain
+Selanjutnya, untuk monitoring dan serving model versi remote (bukan di lokal), push project ini ke repositori Dagshub dengan command github pada umumnya (atau push di github terlebih dahulu lalu hubungkan repository projectnya ke dagshub)
+Salin URI, username dan token ke kodingannya (modeling.py), untuk URI bisa diakses melalui Remote > Experiments > MLFlow Tracking remote, sedangkan token bisa diakses di profile > your setting > token > generate new token
+Coba jalankan kodingan MLFlow project ini untuk versi remotenya, jika berhasil muncul hasilnya di repository dagshub di menu “Experiments” (muncul parameters, metrics, artifacts untuk akses model, dan lain-lain)
+References
+https://github.com/dicodingacademy/dicoding_dataset/tree/main/employee
+https://github.com/rahmantaufik27/analysis-attrition-dicoding
+https://github.com/rahmantaufik27/mlops-serving-monitor
+https://dagshub.com/rahmantaufik27/mlflow-sml-rtaufik27
+https://github.com/rahmantaufik27/Workflow-CI
+MLflow for Machine Learning Development - Video Introduction
+How to Deploy a Flask App on Railway Using a Docker Image [FREE] (2025)
+bit.ly/attrition_analysis_dashboard
+https://github.com/rahmantaufik27/dsp-attrition-app
+https://medium.com/@wleelaki/a-brief-introduction-to-dagshub-for-beginners-100d66169e21	
+Code Snippet Example
+Virtual Environment
+python3 -m venv env
+source env/bin/activate 
+Installation Dependencies
+pip install -r requirements.txt
+pip freeze > requirements.txt
+Dagshub
+pip3 install dagshub --upgrade
+# upload.
+dagshub upload --bucket "path/to/DAGSHUB-PROJECT-URL" "path/to/local/files" # "target/path/in/bucket"
+# download
+dagshub download --bucket "path/to/DAGSHUB-PROJECT-URL" "path/in/bucket" # "target/path/to/local/files"
+Docker
+docker buildx build --platform linux/amd64 -t ertaufik27/attrition-app:latest .  
+docker run -p 8000:8000 ertaufik27/attrition-app:latest 
+docker images 
+docker push ertaufik27/attrition-app:latest 
+docker ps -a            
+# cek daftar container 
+# docker stop <container_id>   
+# docker rm <container_id> 
+# docker rmi <image_id>
+
+--- TABLES ---

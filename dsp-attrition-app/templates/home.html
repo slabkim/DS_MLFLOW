@@ -1,0 +1,15 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+%}
+<div class="p-5 mb-4 bg-light rounded-3">
+  <div class="container-fluid py-5">
+    <h1 class="display-5 fw-bold">Selamat Datang di Jaya Jaya Maju</h1>
+    <p class="col-md-8 fs-4">
+      Aplikasi ini dibuat untuk membantu mengidentifikasi faktor-faktor yang
+      mempengaruhi attrition karyawan dan memprediksi apakah karyawan tertentu
+      berisiko meninggalkan perusahaan.
+    </p>
+    <a href="/dashboard" class="btn btn-primary btn-lg">Lihat Dashboard</a>
+    <a href="/predict" class="btn btn-secondary btn-lg">Coba Prediksi</a>
+  </div>
+</div>
+{% endblock %}
